@@ -8,7 +8,7 @@ const searchCitySection = document.querySelector('.search-city')
 const countryTxt = document.querySelector('.country-txt')
 const tempTxt = document.querySelector('.temp-txt')
 const conditionTxt = document.querySelector('.condition-txt')
-const humidityValueTxt = document.querySelector('.humidity-value-txt')
+const elevationValueTxt = document.querySelector('.elevation-value-txt')
 const windValueTxt = document.querySelector('.wind-value-txt')
 const weatherSummaryImg = document.querySelector('.weather-summary-img')
 const currentDateTxt = document.querySelector('.current-date-txt')
@@ -107,14 +107,13 @@ async function updateWeatherInfo(city) {
     }
 
     const weatherData = await getWeatherForecast(location.latitude, location.longitude);
-    
     const current = weatherData.current;
     const daily = weatherData.daily;
 
     countryTxt.textContent = location.name;
     tempTxt.textContent = `${Math.round(current.temperature_2m)} °C`;
     conditionTxt.textContent = getConditionFromCode(current.weather_code);
-    humidityValueTxt.textContent = "-";
+    elevationValueTxt.textContent = `${weatherData.elevation} m`;
     windValueTxt.textContent = `${current.wind_speed_10m} m/s`;
     currentDateTxt.textContent = getCurrentDate();
     weatherSummaryImg.src = `assets/weather/${getWeatherIcon(current.weather_code)}`;
