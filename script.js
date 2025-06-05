@@ -12,7 +12,6 @@ const elevationValueTxt = document.querySelector('.elevation-value-txt')
 const windValueTxt = document.querySelector('.wind-value-txt')
 const weatherSummaryImg = document.querySelector('.weather-summary-img')
 const currentDateTxt = document.querySelector('.current-date-txt')
-
 const forecastItemsContainer = document.querySelector('.forecast-items-container')
 
 searchBtn.addEventListener('click', () => {
@@ -22,6 +21,7 @@ searchBtn.addEventListener('click', () => {
         cityInput.blur()
     }
 })
+
 cityInput.addEventListener('keydown', (event) => {
     if (event.key == 'Enter' &&
         cityInput.value.trim() != ''
@@ -50,6 +50,21 @@ async function getWeatherForecast(lat, lon) {
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`
     );
     return response.json();
+}
+
+const UNSPLASH_ACCESS_KEY = '0dUmPOoRvaIXRk1zNB2Dvm7JHw4uYGTsW46ZoJRHli0';
+
+async function updateBackgroundImage(city) {
+    const response = await fetch(
+        `https://api.unsplash.com/photos/random?query=${encodeURIComponent(city)}&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`
+    );
+
+    const data = await response.json();
+    if (data && data.urls && data.urls.full) {
+        document.body.style.background = `url(${data.urls.full})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    }
 }
 
 function getWeatherIcon(code) {
@@ -107,6 +122,8 @@ async function updateWeatherInfo(city) {
     }
 
     const weatherData = await getWeatherForecast(location.latitude, location.longitude);
+    await updateBackgroundImage(location.name); // dynamically load the bg
+
     const current = weatherData.current;
     const daily = weatherData.daily;
 
