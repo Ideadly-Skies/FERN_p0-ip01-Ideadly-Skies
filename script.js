@@ -122,6 +122,7 @@ async function updateWeatherInfo(city) {
     }
 
     const weatherData = await getWeatherForecast(location.latitude, location.longitude);
+    console.log(location.name) 
     await updateBackgroundImage(location.name); // dynamically load the bg
 
     const current = weatherData.current;

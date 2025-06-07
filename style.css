@@ -140,15 +140,16 @@ body::before {
     padding-bottom: 12px;
 }
 .forecast-items-container::-webkit-scrollbar {
-    height: 8px;
+    height: 12px; /* Keep the height of the scrollbar */
 }
 .forecast-items-container::-webkit-scrollbar-track {
-    background: rgb(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.3); /* Darker track for better visibility */
     border-radius: 99px;
 }
 .forecast-items-container::-webkit-scrollbar-thumb {
-    background: rgb(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.7); /* Darker thumb for better visibility */
     border-radius: 99px;
+    border: 2px solid rgba(255, 255, 255, 0.2); /* Add a subtle border for contrast */
 }
 
 .forecast-item {
