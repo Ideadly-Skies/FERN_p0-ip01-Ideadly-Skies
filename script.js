@@ -143,7 +143,7 @@ async function updateWeatherInfo(city) {
 function updateForecastsInfo(daily) {
     forecastItemsContainer.innerHTML = '';
 
-    for (let i = 0; i < daily.time.length - 1; i++) {
+    for (let i = 1; i < daily.time.length - 1; i++) {
         const date = daily.time[i];
         const icon = getWeatherIcon(daily.weather_code[i]);
         const temp = daily.temperature_2m_max[i];
