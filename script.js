@@ -60,10 +60,23 @@ async function updateBackgroundImage(city) {
     );
 
     const data = await response.json();
-    if (data && data.urls && data.urls.full) {
-        document.body.style.background = `url(${data.urls.full})`;
+    if (data && data.urls) {
+        // Use a low-resolution image as a placeholder
+        document.body.style.background = `url(${data.urls.thumb})`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
+        document.body.style.filter = 'blur(10px)'; // Add blur effect to the placeholder
+
+        // Preload the high-resolution image
+        const highResImage = new Image();
+        highResImage.src = data.urls.full;
+        highResImage.onload = () => {
+            // Replace the placeholder with the high-resolution image
+            document.body.style.background = `url(${data.urls.full})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.filter = 'none'; // Remove blur effect
+        };
     }
 }
 
@@ -114,15 +127,45 @@ function getCurrentDate() {
     return currentDate.toLocaleDateString('en-GB', options)
 }
 
+// Show the loading spinner
+function showLoadingSpinner() {
+    document.querySelector('.loading-spinner').style.display = 'block';
+}
+
+// Hide the loading spinner
+function hideLoadingSpinner() {
+    document.querySelector('.loading-spinner').style.display = 'none';
+}
+
+// Smoothly show a section with fade-in effect
+function showSectionWithFade(section) {
+    section.classList.add('fade-in');
+    section.style.display = 'flex';
+    setTimeout(() => section.classList.remove('fade-in'), 500); // Remove the class after animation
+}
+
+// Update the showDisplaySection function
+function showDisplaySection(section) {
+    [weatherInfoSection, searchCitySection, notFoundSection].forEach(sec => {
+        sec.style.display = 'none';
+    });
+
+    showSectionWithFade(section);
+}
+
+// Update the updateWeatherInfo function to include the spinner
 async function updateWeatherInfo(city) {
+    showLoadingSpinner(); // Show spinner while loading
+
     const location = await getCoordinates(city);
     if (!location) {
+        hideLoadingSpinner(); // Hide spinner if not found
         showDisplaySection(notFoundSection);
         return;
     }
 
     const weatherData = await getWeatherForecast(location.latitude, location.longitude);
-    await updateBackgroundImage(location.name); // dynamically load the bg
+    await updateBackgroundImage(location.name); // Dynamically load the background
 
     const current = weatherData.current;
     const daily = weatherData.daily;
@@ -136,6 +179,8 @@ async function updateWeatherInfo(city) {
     weatherSummaryImg.src = `assets/weather/${getWeatherIcon(current.weather_code)}`;
 
     updateForecastsInfo(daily);
+
+    hideLoadingSpinner(); // Hide spinner after loading
     showDisplaySection(weatherInfoSection);
 }
 
@@ -187,11 +232,4 @@ function updateForecastItems(weatherData) {
     `
 
     forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem)
-}
-
-function showDisplaySection(section) {
-    [weatherInfoSection, searchCitySection, notFoundSection]
-        .forEach(section => section.style.display = 'none')
-
-    section.style.display = 'flex'
 }
