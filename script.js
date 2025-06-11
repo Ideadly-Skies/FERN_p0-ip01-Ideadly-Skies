@@ -155,58 +155,84 @@ function showDisplaySection(section) {
 
 // Update the updateWeatherInfo function to include the spinner
 async function updateWeatherInfo(city) {
-    showLoadingSpinner(); // Show spinner while loading
+    showLoadingSpinner();
 
-    const location = await getCoordinates(city);
-    if (!location) {
-        hideLoadingSpinner(); // Hide spinner if not found
+    try {
+        const location = await getCoordinates(city);
+        if (!location) {
+            showDisplaySection(notFoundSection);
+            throw new Error("no location found");
+        }
+
+        const weatherData = await getWeatherForecast(location.latitude, location.longitude);
+        await updateBackgroundImage(location.name);
+    
+        const current = weatherData.current;
+        const daily = weatherData.daily;
+    
+        countryTxt.textContent = location.name;
+        tempTxt.textContent = `${Math.round(current.temperature_2m)} °C`;
+        conditionTxt.textContent = getConditionFromCode(current.weather_code);
+        elevationValueTxt.textContent = `${weatherData.elevation} m`;
+        windValueTxt.textContent = `${current.wind_speed_10m} m/s`;
+        currentDateTxt.textContent = getCurrentDate();
+        weatherSummaryImg.src = `assets/weather/${getWeatherIcon(current.weather_code)}`;
+    
+        updateForecastsInfo(daily);
+        showDisplaySection(weatherInfoSection);
+
+    } catch (error) {
         showDisplaySection(notFoundSection);
-        return;
+    } finally {
+        hideLoadingSpinner();
     }
-
-    const weatherData = await getWeatherForecast(location.latitude, location.longitude);
-    await updateBackgroundImage(location.name); // Dynamically load the background
-
-    const current = weatherData.current;
-    const daily = weatherData.daily;
-
-    countryTxt.textContent = location.name;
-    tempTxt.textContent = `${Math.round(current.temperature_2m)} °C`;
-    conditionTxt.textContent = getConditionFromCode(current.weather_code);
-    elevationValueTxt.textContent = `${weatherData.elevation} m`;
-    windValueTxt.textContent = `${current.wind_speed_10m} m/s`;
-    currentDateTxt.textContent = getCurrentDate();
-    weatherSummaryImg.src = `assets/weather/${getWeatherIcon(current.weather_code)}`;
-
-    updateForecastsInfo(daily);
-
-    hideLoadingSpinner(); // Hide spinner after loading
-    showDisplaySection(weatherInfoSection);
 }
 
 function updateForecastsInfo(daily) {
     forecastItemsContainer.innerHTML = '';
 
+    // Store all forecast data for easy access
+    const forecasts = [];
     for (let i = 1; i < daily.time.length; i++) {
-        const date = daily.time[i];
-        const icon = getWeatherIcon(daily.weather_code[i]);
-        const temp = daily.temperature_2m_max[i];
+        forecasts.push({
+            date: daily.time[i],
+            icon: getWeatherIcon(daily.weather_code[i]),
+            temp: daily.temperature_2m_max[i],
+            code: daily.weather_code[i],
+        });
+    }
 
-        const dateTaken = new Date(date);
+    forecasts.forEach((forecast, idx) => {
+        const dateTaken = new Date(forecast.date);
         const dateResult = dateTaken.toLocaleDateString('en-US', {
             day: '2-digit',
             month: 'short'
         });
 
-        const forecastItem = `
-            <div class="forecast-item">
-                <h5 class="forecast-item-date regular-txt">${dateResult}</h5>
-                <img src="assets/weather/${icon}" class="forecast-item-img">
-                <h5 class="forecast-item-temp">${Math.round(temp)} °C</h5>
-            </div>
+        const forecastItem = document.createElement('div');
+        forecastItem.className = 'forecast-item';
+        if (idx === 0) forecastItem.classList.add('active');
+
+        forecastItem.innerHTML = `
+            <h5 class="forecast-item-date regular-txt">${dateResult}</h5>
+            <img src="assets/weather/${forecast.icon}" class="forecast-item-img">
+            <h5 class="forecast-item-temp">${Math.round(forecast.temp)} °C</h5>
         `;
-        forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem);
-    }
+
+        // Add click event to update main weather info
+        forecastItem.addEventListener('click', () => {
+            // Remove active from all
+            document.querySelectorAll('.forecast-item').forEach(item => item.classList.remove('active'));
+            forecastItem.classList.add('active');
+
+            // Update main weather info
+            tempTxt.textContent = `${Math.round(forecast.temp)} °C`;
+            conditionTxt.textContent = getConditionFromCode(forecast.code);
+            weatherSummaryImg.src = `assets/weather/${forecast.icon}`;
+        });
+
+        forecastItemsContainer.appendChild(forecastItem);
+    });
 }
 
 function updateForecastItems(weatherData) {
