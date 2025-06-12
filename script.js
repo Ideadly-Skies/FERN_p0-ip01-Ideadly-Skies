@@ -46,9 +46,17 @@ async function getCoordinates(city) {
 }
 
 async function getWeatherForecast(lat, lon) {
+    const today = new Date();
+    const startDate = today.toISOString().split("T")[0];
+
+    const end = new Date(today);
+    end.setDate(end.getDate() + 6); // today + 6 days
+    const endDate = end.toISOString().split("T")[0];
+
     const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&start_date=${startDate}&end_date=${endDate}`
     );
+
     return response.json();
 }
 
@@ -165,6 +173,7 @@ async function updateWeatherInfo(city) {
         }
 
         const weatherData = await getWeatherForecast(location.latitude, location.longitude);
+        console.log(weatherData) 
         await updateBackgroundImage(location.name);
     
         const current = weatherData.current;
@@ -193,7 +202,7 @@ function updateForecastsInfo(daily) {
 
     // Store all forecast data for easy access
     const forecasts = [];
-    for (let i = 1; i < daily.time.length; i++) {
+    for (let i = 0; i < daily.time.length; i++) {
         forecasts.push({
             date: daily.time[i],
             icon: getWeatherIcon(daily.weather_code[i]),
