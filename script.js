@@ -268,3 +268,20 @@ function updateForecastItems(weatherData) {
 
     forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem)
 }
+
+// logic to blur the container when you left-click your mouse 
+const mainContainer = document.querySelector('.main-container');
+
+// For mouse: toggle on hold down directly on container
+mainContainer.addEventListener('mousedown', (event) => {
+    if (event.target === mainContainer) {
+        mainContainer.classList.toggle('transparent');
+    }
+});
+
+// For mobile: toggle on touchstart directly on container
+mainContainer.addEventListener('touchstart', (event) => {
+    if (event.target === mainContainer) {
+        mainContainer.classList.toggle('transparent');
+    }
+});
