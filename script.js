@@ -243,31 +243,6 @@ function updateForecastsInfo(daily) {
     });
 }
 
-function updateForecastItems(weatherData) {
-    const {
-        dt_txt: date,
-        weather: [{ id }],
-        main: { temp }
-    } = weatherData
-
-    const dateTaken = new Date(date)
-    const dateOption = {
-        day: '2-digit',
-        month: 'short'
-    }
-    const dateResult = dateTaken.toLocaleDateString('en-US', dateOption)
-
-    const forecastItem = `
-        <div class="forecast-item">
-            <h5 class="forecast-item-date regular-txt">${dateResult}</h5>
-            <img src="assets/weather/${getWeatherIcon(id)}" class="forecast-item-img">
-            <h5 class="forecast-item-temp">${Math.round(temp)} °C</h5>
-        </div>
-    `
-
-    forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem)
-}
-
 // logic to blur the container when you left-click your mouse 
 const mainContainer = document.querySelector('.main-container');
 
