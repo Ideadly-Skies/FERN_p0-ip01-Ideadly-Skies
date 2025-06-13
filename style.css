@@ -141,6 +141,8 @@ body::before {
   overflow-x: scroll;
   padding-bottom: 12px;
 }
+
+/* prompt-based design (GPT) */
 .forecast-items-container::-webkit-scrollbar {
   height: 12px; /* Keep the height of the scrollbar */
 }
