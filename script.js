@@ -173,7 +173,6 @@ async function updateWeatherInfo(city) {
         }
 
         const weatherData = await getWeatherForecast(location.latitude, location.longitude);
-        console.log(weatherData) 
         await updateBackgroundImage(location.name);
     
         const current = weatherData.current;
